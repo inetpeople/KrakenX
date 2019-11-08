@@ -61,7 +61,7 @@ defmodule KrakenX.Futures.WebSocket do
 
       @impl true
       def handle_connect(conn, state) do
-        :ok = info("WebSocket sucessfully connected with #{conn.host}")
+        :ok = info("WebSocket sucessfully connected with Kraken Futures WebSocket!")
 
         send(self(), :heartbeat)
         send(self(), :get_challenge)

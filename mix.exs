@@ -4,7 +4,7 @@ defmodule KrakenX.MixProject do
   def project do
     [
       app: :kraken_x,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.9",
       deps: deps(),
       build_embedded: Mix.env() == :prod,

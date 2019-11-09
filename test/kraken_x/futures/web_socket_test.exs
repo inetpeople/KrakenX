@@ -20,7 +20,7 @@ defmodule KrakenX.Futures.WebSocketTest do
         channels: channels,
         debug: [],
         require_auth: false,
-        config: %{access_keys: ["OK_1_API_KEY", "OK_1_API_SECRET", "OK_1_API_PASSPHRASE"]}
+        config: %{access_keys: ["API_KEY", "API_SECRET", "API_PASSPHRASE"]}
       })
 
     {:ok, socket: socket, state: :sys.get_state(socket)}
@@ -32,7 +32,7 @@ defmodule KrakenX.Futures.WebSocketTest do
                channels: ["pi_ethusd"],
                debug: [],
                config: %{
-                 access_keys: ["OK_1_API_KEY", "OK_1_API_SECRET", "OK_1_API_PASSPHRASE"]
+                 access_keys: ["API_KEY", "API_SECRET", "API_PASSPHRASE"]
                },
                heartbeat: 0,
                require_auth: false

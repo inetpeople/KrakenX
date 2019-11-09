@@ -19,7 +19,7 @@ defmodule KrakenX.Futures.WebSocket do
       ### Interface
       ######
       def subscribe_channels(pid, channels) do
-        info("Subscribed")
+        info("Subscribed to channels.")
         WebSockex.send_frame(pid, channels_frame(channels))
       end
 
@@ -111,11 +111,10 @@ defmodule KrakenX.Futures.WebSocket do
       end
 
       def handle_response(%{"feed" => "heartbeat", "time" => time} = msg, state) do
-        utc_time = DateTime.from_unix!(time, :millisecond)
-        info("received heartbeat at #{utc_time}")
+        # utc_time = DateTime.from_unix!(time, :millisecond)
+        # info("received heartbeat at #{utc_time}")
         state = %{state | heartbeat: state.heartbeat + 1}
 
-        inspect(state)
         {:ok, state}
       end
 

@@ -43,6 +43,7 @@ defmodule KrakenX.MixProject do
       {:jason, "~> 1.0"},
       {:websockex, "~> 0.4.2"},
       {:httpoison, "~> 1.6"}
+      # {:krakex, "~> 0.4.1"}
     ]
   end
 end

@@ -10,6 +10,8 @@ defmodule KrakenX.Application do
       # Starts a worker by calling: KrakenX.Worker.start_link(arg)
       {KrakenX.Futures.WebSocket.Agent, []}
       # {KrakenX.Futures, %{channels: [], debug: [:trace]}}
+
+      # {KrakenX.Spot, %{channels: [], debug: [:trace]}}
       # Add debug: [:trace] to see the WebSocket Debug Messages.
       # {KrakenX.Futures, %{channels: ["pi_ethusd"], require_auth: true, debug: []}}
     ]

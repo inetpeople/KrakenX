@@ -306,15 +306,17 @@ defmodule Krakex do
         "last" => "1515076587511702121"}}
 
   """
-  @spec trades(Client.t(), binary, keyword) :: Krakex.API.response()
+
   def trades(client \\ @api.public_client(), pair, opts \\ [])
 
   def trades(%Client{} = client, pair, opts) do
-    @api.public_request(client, "Trades", [pair: pair] ++ opts)
+    params = Keyword.take(opts, [:pair, :since])
+    @api.public_request(client, "Trades", [pair: pair] ++ params)
   end
 
   def trades(pair, opts, []) do
-    @api.public_request(@api.public_client(), "Trades", [pair: pair] ++ opts)
+    params = Keyword.take(opts, [:pair, :since])
+    @api.public_request(@api.public_client(), "Trades", [pair: pair] ++ params)
   end
 
   @doc """

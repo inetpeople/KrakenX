@@ -38,18 +38,19 @@ defmodule KrakenX do
   }
   """
   def get_historical_trades_since(pair, since) do
-    {:ok, res} = Krakex.trades(pair, since: since)
-    # KrakenX.Spot.Rest.trades(%{pair: pair, since: since})
+    trades = Krakex.trades(pair, since: since)
 
-    # last = res["result"]["last"]
-    # [pair, _] = Map.keys(res["result"])
-    # trades = res["result"][pair]
+    case trades do
+      {:ok, res} ->
+        last = res["last"]
+        [pair, _] = Map.keys(res)
+        trades = res[pair]
+        {pair, trades, last}
 
-    last = res["last"]
-    [pair, _] = Map.keys(res)
-    trades = res[pair]
-
-    {pair, trades, last}
+      {:error, error} ->
+        warn("Boss, we get an error: #{error}. I will try again, oklah?")
+        get_historical_trades_since(pair, since)
+    end
   end
 
   def get_all_historical_trades(pair) do
@@ -58,8 +59,7 @@ defmodule KrakenX do
     end
 
     p = String.upcase(pair)
-
-    file = File.read("./#{p}_trade_history.txt")
+    file = File.read("./#{p}_history.txt")
 
     case file do
       {:ok, file_content} ->
@@ -72,52 +72,41 @@ defmodule KrakenX do
         )
 
         {npair, new_trades, nlast} = get_historical_trades_since(pair, "#{last}")
-        trades = (old_trades ++ new_trades) |> Enum.reverse()
-        req_time = DateTime.utc_now()
-        get_trades(npair, nlast, trades, req_time)
+        trades = [new_trades | old_trades]
+        # req_time = DateTime.utc_now()
+        get_trades(npair, nlast, trades, last)
 
       {:error, :enoent} ->
-        {pair, trades, last} = get_historical_trades_since(pair, 0)
-        req_time = DateTime.utc_now()
-        get_trades(pair, last, trades, req_time)
+        {pair, trades, last} = get_historical_trades_since(pair, "0")
+        warn("No file found, starting back in time!")
+        get_trades(pair, last, trades, "0")
 
       _ ->
         {:error}
     end
 
+    info("Got all your data, Sayan")
     info("finished!!")
   end
 
   defp get_trades(pair, last, acc, req_time) do
-    [_, _, time, _, _, _] = List.last(acc)
-    last_trade = DateTime.from_unix!(trunc(time))
+    # [_, _, time, _, _, _] = List.last(acc)
+    # last_trade = DateTime.from_unix!(trunc(time))
 
-    if last_trade < req_time do
-      info("Got all your data, Say  an")
+    if last == req_time do
       file_content = {pair, acc, last}
-      File.write!("./#{pair}_trade_history.txt", :erlang.term_to_binary(file_content))
+      File.write!("./#{pair}_history.txt", :erlang.term_to_binary(file_content))
       {pair, acc, last}
     else
-      info("run again #{last_trade}, i'm not ready yet. Have a coffee?")
+      t = last |> String.to_integer()
+      {:ok, time} = System.convert_time_unit(t, :native, :second) |> DateTime.from_unix()
+      info("run again #{last} #{time}, i'm not ready yet. Kopi (coffee) time?")
       {npair, ntrades, nlast} = get_historical_trades_since(pair, last)
-      nacc = (ntrades ++ acc) |> Enum.reverse()
-      Process.sleep(5000)
-      get_trades(npair, nlast, nacc, req_time)
+      nacc = ntrades ++ acc
+      file_content = {npair, nacc, nlast}
+      File.write!("./#{pair}_history.txt", :erlang.term_to_binary(file_content))
+      Process.sleep(3000)
+      get_trades(npair, nlast, nacc, last)
     end
   end
-
-  # def k_v(kv) do
-  #   for {key, val} <-
-  #         kv,
-  #       into: %{},
-  #       do: {atomize(String.downcase(key)), val}
-  # end
-
-  # def atomize(key) do
-  #   try do
-  #     String.to_atom(key)
-  #   rescue
-  #     ArgumentError -> Logger.warn("Map Signal with unknown Values found!")
-  #   end
-  # end
 end
